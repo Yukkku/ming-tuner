@@ -1,6 +1,6 @@
 import { createSignal, createEffect, createMemo, onCleanup, type JSX } from "solid-js";
 
-const Display = (props: { analyser: AnalyserNode, width: number, height: number }) => {
+const Display = (props: { analyser: AnalyserNode, width: number, height: number, A?: number }) => {
   const dataArray = createMemo(() => new Float32Array(props.analyser.frequencyBinCount));
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
@@ -12,7 +12,7 @@ const Display = (props: { analyser: AnalyserNode, width: number, height: number 
     ctx.clearRect(0, 0, w, h);
     const d = dataArray();
     analyser.getFloatFrequencyData(d);
-    const ereq = freqB / (442 * 2 ** (5 / 24));
+    const ereq = freqB / ((props.A ?? 442) * 2 ** (5 / 24));
     let his = -Infinity;
     for (let i = 1; i < d.length; ++i) if (d[i] > his) his = d[i];
     his = (w / 30) / (10 ** (his / 20));
@@ -61,13 +61,14 @@ export default () => {
   const [display, setDisplay] = createSignal<JSX.Element | null>(null);
   const [width, setWidth] = createSignal(window.innerWidth);
   const [height, setHeight] = createSignal(window.innerHeight);
-  window.addEventListener('resize', () => {
+  const onResize = () => {
     setWidth(window.innerWidth);
     setHeight(window.innerHeight);
-  });
+  };
+  window.addEventListener('resize', onResize);
+  onCleanup(() => window.removeEventListener('resize', onResize));
   (async () => {
     const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    console.log(mediaStream);
     const audioCtx = new AudioContext();
     const analyser = audioCtx.createAnalyser();
     analyser.smoothingTimeConstant = 0;
