@@ -1,7 +1,7 @@
-import { createEffect, createMemo, onCleanup } from "solid-js";
+import { createEffect, onCleanup } from "solid-js";
 
 export default (props: { analyser: AnalyserNode, width: number, height: number, A?: number }) => {
-  const dataArray = createMemo(() => new Float32Array(props.analyser.frequencyBinCount));
+  const dataArray = new Float32Array(16384);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   const draw = () => {
@@ -10,11 +10,10 @@ export default (props: { analyser: AnalyserNode, width: number, height: number, 
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-    const d = dataArray();
-    analyser.getFloatFrequencyData(d);
+    analyser.getFloatFrequencyData(dataArray);
     const ereq = freqB / ((props.A ?? 442) * 2 ** (5 / 24));
     let his = -Infinity;
-    for (let i = 1; i < d.length; ++i) if (d[i] > his) his = d[i];
+    for (let i = 1; i < analyser.frequencyBinCount; ++i) if (dataArray[i] > his) his = dataArray[i];
     his = (w / 30) / (10 ** (his / 20));
     for (let i = 0; i < 12; ++i) {
       ctx.fillStyle = '010100101010'[i] === '0' ? 'white' : 'black';
@@ -29,8 +28,8 @@ export default (props: { analyser: AnalyserNode, width: number, height: number, 
       ctx.lineTo((i + 0.7) * w / 12, h * (3.5 - 12 * Math.log2(6 / 5)));
       ctx.stroke();
     }
-    for (let i = 1; i < d.length; ++i) {
-      const r = (10 ** (d[i] / 20)) * his;
+    for (let i = 1; i < analyser.frequencyBinCount; ++i) {
+      const r = (10 ** (dataArray[i] / 20)) * his;
       const e = (Math.log2(i * ereq) % 1 + 1) % 1 * 12;
       const x = (Math.floor(e) + 0.5) * w / 12;
       const y = h * (1 - e % 1);
