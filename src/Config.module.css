@@ -1,0 +1,26 @@
+.outer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgb(from canvas r g b / 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  border: 2px solid canvasText;
+  border-radius: 0.5em;
+  background-color: canvas;
+  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.title {
+  font-size: 2em;
+  text-align: center;
+}
