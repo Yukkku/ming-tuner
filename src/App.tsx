@@ -43,7 +43,7 @@ export default () => {
     setUsingTrack(tracks().at(0) ?? null);
   })();
   return (<>
-    <Display analyser={analyser} width={width()} height={height() / 2} />
+    <Display analyser={analyser} width={width()} height={height() / 2} enable={usingTrack() != null} />
     <Config tracks={tracks()} usingTrack={[usingTrack, setUsingTrack]} fftSize={[fftSize, setFftSize]} />
   </>);
 };

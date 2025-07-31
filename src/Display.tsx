@@ -1,6 +1,6 @@
 import { createEffect, onCleanup } from "solid-js";
 
-export default (props: { analyser: AnalyserNode, width: number, height: number, A?: number }) => {
+export default (props: { analyser: AnalyserNode, width: number, height: number, A?: number, enable: boolean }) => {
   const dataArray = new Float32Array(16384);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
@@ -10,11 +10,6 @@ export default (props: { analyser: AnalyserNode, width: number, height: number, 
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-    analyser.getFloatFrequencyData(dataArray);
-    const ereq = freqB / ((props.A ?? 442) * 2 ** (5 / 24));
-    let his = -Infinity;
-    for (let i = 1; i < analyser.frequencyBinCount; ++i) if (dataArray[i] > his) his = dataArray[i];
-    his = (w / 30) / (10 ** (his / 20));
     for (let i = 0; i < 12; ++i) {
       ctx.fillStyle = '010100101010'[i] === '0' ? 'white' : 'black';
       ctx.strokeStyle = '010100101010'[i] === '0' ? 'black' : 'white';
@@ -28,6 +23,12 @@ export default (props: { analyser: AnalyserNode, width: number, height: number, 
       ctx.lineTo((i + 0.7) * w / 12, h * (3.5 - 12 * Math.log2(6 / 5)));
       ctx.stroke();
     }
+    if (!props.enable) return;
+    analyser.getFloatFrequencyData(dataArray);
+    const ereq = freqB / ((props.A ?? 442) * 2 ** (5 / 24));
+    let his = -Infinity;
+    for (let i = 1; i < analyser.frequencyBinCount; ++i) if (dataArray[i] > his) his = dataArray[i];
+    his = (w / 30) / (10 ** (his / 20));
     for (let i = 1; i < analyser.frequencyBinCount; ++i) {
       const r = (10 ** (dataArray[i] / 20)) * his;
       const e = (Math.log2(i * ereq) % 1 + 1) % 1 * 12;
