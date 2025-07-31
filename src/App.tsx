@@ -1,13 +1,14 @@
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup, Show } from "solid-js";
 import Display from './Display.tsx';
 import Config from "./Config.tsx";
 
 export default () => {
   const [tracks, setTracks] = createSignal<MediaStreamTrack[]>([]);
   const [usingTrack, setUsingTrack] = createSignal<MediaStreamTrack | null>(null);
-  const [fftSize, setFftSize] = createSignal<number>(32768);
+  const [fftSize, setFftSize] = createSignal(32768);
   const [width, setWidth] = createSignal(window.innerWidth);
   const [height, setHeight] = createSignal(window.innerHeight);
+  const [showConfig, setShowConfig] = createSignal(false);
   const onResize = () => {
     setWidth(window.innerWidth);
     setHeight(window.innerHeight);
@@ -43,7 +44,9 @@ export default () => {
     setUsingTrack(tracks().at(0) ?? null);
   })();
   return (<>
-    <Display analyser={analyser} width={width()} height={height()} enable={usingTrack() != null} />
-    <Config tracks={tracks()} usingTrack={[usingTrack, setUsingTrack]} fftSize={[fftSize, setFftSize]} />
+    <Display analyser={analyser} width={width()} height={height()} enable={usingTrack() != null} onClick={() => setShowConfig(true)} />
+    <Show when={showConfig()}>
+      <Config tracks={tracks()} usingTrack={[usingTrack, setUsingTrack]} fftSize={[fftSize, setFftSize]} hide={() => setShowConfig(false)} />
+    </Show>
   </>);
 };

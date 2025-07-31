@@ -1,6 +1,6 @@
 import { createEffect, onCleanup } from "solid-js";
 
-export default (props: { analyser: AnalyserNode, width: number, height: number, A?: number, enable: boolean }) => {
+export default (props: { analyser: AnalyserNode, width: number, height: number, A?: number, enable: boolean, onClick: () => unknown }) => {
   const dataArray = new Float32Array(16384);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
@@ -53,6 +53,11 @@ export default (props: { analyser: AnalyserNode, width: number, height: number, 
     draw();
   });
   const intervalID = setInterval(draw, 100);
-  onCleanup(() => clearInterval(intervalID));
+  const onClick = () => props.onClick();
+  canvas.addEventListener('click', onClick);
+  onCleanup(() => {
+    clearInterval(intervalID);
+    canvas.removeEventListener('click', onClick);
+  });
   return canvas;
 };
