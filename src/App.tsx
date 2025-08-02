@@ -6,15 +6,17 @@ export default () => {
   const [tracks, setTracks] = createSignal<MediaStreamTrack[]>([]);
   const [usingTrack, setUsingTrack] = createSignal<MediaStreamTrack | null>(null);
   const [fftSize, setFftSize] = createSignal(32768);
-  const [width, setWidth] = createSignal(window.innerWidth);
-  const [height, setHeight] = createSignal(window.innerHeight);
+  const [width, setWidth] = createSignal(document.documentElement.clientWidth);
+  const [height, setHeight] = createSignal(document.documentElement.clientHeight);
   const [showConfig, setShowConfig] = createSignal(false);
-  const onResize = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
+  const sizeFit = () => {
+    setWidth(document.documentElement.clientWidth);
+    setHeight(document.documentElement.clientHeight);
   };
-  window.addEventListener('resize', onResize);
-  onCleanup(() => window.removeEventListener('resize', onResize));
+  window.addEventListener('resize', sizeFit);
+  onCleanup(() => {
+    window.removeEventListener('resize', sizeFit);
+  });
 
   const audioCtx = new AudioContext();
   const analyser = audioCtx.createAnalyser();
